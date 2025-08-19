@@ -54,4 +54,9 @@ El sistema permite registrar equipos, ingresar resultados de partidos, calcular 
     2. Team2 - Puntos: 0
  ```
 
+ ## Integrantes del grupo
+- Sanchez Carlos Nahuel
+- Albarenga Alexis
+- Esteche Lucas
+
 
