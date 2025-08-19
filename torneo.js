@@ -1,5 +1,6 @@
-const readline = require('readline');
+import { createInterface } from 'readline';
 
+// ================== EQUIPOS ==================
 class Equipo {
     #puntos = 0;
     #victorias = 0;
@@ -15,35 +16,58 @@ class Equipo {
     get derrotas() { return this.#derrotas; }
     get empates() { return this.#empates; }
 
-    actualizarPuntos(resultado, puntosPorVictoria = 3) {
-        if (resultado === 'victoria') {
-            this.#victorias += 1;
+    actualizarPuntos(resultado, puntosPorVictoria) {
+        if (resultado === "victoria") {
+            this.#victorias++;
             this.#puntos += puntosPorVictoria;
-        } else if (resultado === 'empate') {
-            this.#empates += 1;
-            this.#puntos += 1;
-        } else if (resultado === 'derrota') {
-            this.#derrotas += 1;
+        } else if (resultado === "empate") {
+            this.#empates++;
+            this.#puntos++;
+        } else {
+            this.#derrotas++;
         }
     }
 }
 
-class Partido {
-    #puntosEquipo1;
-    #puntosEquipo2;
-
-    constructor(equipo1, equipo2, puntosEquipo1, puntosEquipo2) {
-        this.equipo1 = equipo1;
-        this.equipo2 = equipo2;
-        this.#puntosEquipo1 = puntosEquipo1;
-        this.#puntosEquipo2 = puntosEquipo2;
+class EquipoFutbol extends Equipo {
+    constructor(nombre) {
+        super(nombre);
+        this.golesAFavor = 0;
+        this.golesEnContra = 0;
     }
-
-    get puntosEquipo1() { return this.#puntosEquipo1; }
-    get puntosEquipo2() { return this.#puntosEquipo2; }
-
 }
 
+class EquipoBasket extends Equipo {
+    constructor(nombre) {
+        super(nombre);
+        this.canastasAFavor = 0;
+        this.canastasEnContra = 0;
+    }
+}
+
+// ================== PARTIDOS ==================
+class Partido {
+    constructor(equipo1, equipo2, marcador1, marcador2) {
+        this.equipo1 = equipo1;
+        this.equipo2 = equipo2;
+        this.marcador1 = marcador1;
+        this.marcador2 = marcador2;
+    }
+}
+
+class PartidoFutbol extends Partido {
+    constructor(equipo1, equipo2, goles1, goles2) {
+        super(equipo1, equipo2, goles1, goles2);
+    }
+}
+
+class PartidoBasket extends Partido {
+    constructor(equipo1, equipo2, puntos1, puntos2) {
+        super(equipo1, equipo2, puntos1, puntos2);
+    }
+}
+
+// ================== TORNEOS ==================
 class Torneo {
     #equipos = [];
     #partidos = [];
@@ -58,8 +82,8 @@ class Torneo {
     get equipos() { return [...this.#equipos]; }
     get partidos() { return [...this.#partidos]; }
 
-    calcularPuntos() {
-    }
+    // Método polimórfico → cada deporte implementa sus reglas
+    calcularPuntos() { }
 
     posicionarEquipos() {
         this.#equipos.sort((a, b) => b.puntos - a.puntos);
@@ -76,28 +100,22 @@ class Torneo {
 class TorneoFutbol extends Torneo {
     calcularPuntos() {
         this.partidos.forEach(partido => {
-            const equipo1 = partido.equipo1;
-            const equipo2 = partido.equipo2;
+            const { equipo1, equipo2, marcador1, marcador2 } = partido;
 
-            if (equipo1.golesAFavor === undefined) equipo1.golesAFavor = 0;
-            if (equipo1.golesEnContra === undefined) equipo1.golesEnContra = 0;
-            if (equipo2.golesAFavor === undefined) equipo2.golesAFavor = 0;
-            if (equipo2.golesEnContra === undefined) equipo2.golesEnContra = 0;
+            equipo1.golesAFavor += marcador1;
+            equipo1.golesEnContra += marcador2;
+            equipo2.golesAFavor += marcador2;
+            equipo2.golesEnContra += marcador1;
 
-            equipo1.golesAFavor += partido.puntosEquipo1;
-            equipo1.golesEnContra += partido.puntosEquipo2;
-            equipo2.golesAFavor += partido.puntosEquipo2;
-            equipo2.golesEnContra += partido.puntosEquipo1;
-
-            if (partido.puntosEquipo1 > partido.puntosEquipo2) {
-                equipo1.actualizarPuntos('victoria', 3);
-                equipo2.actualizarPuntos('derrota', 3);
-            } else if (partido.puntosEquipo2 > partido.puntosEquipo1) {
-                equipo2.actualizarPuntos('victoria', 3);
-                equipo1.actualizarPuntos('derrota', 3);
+            if (marcador1 > marcador2) {
+                equipo1.actualizarPuntos("victoria", 3);
+                equipo2.actualizarPuntos("derrota", 3);
+            } else if (marcador2 > marcador1) {
+                equipo2.actualizarPuntos("victoria", 3);
+                equipo1.actualizarPuntos("derrota", 3);
             } else {
-                equipo1.actualizarPuntos('empate', 3);
-                equipo2.actualizarPuntos('empate', 3);
+                equipo1.actualizarPuntos("empate", 3);
+                equipo2.actualizarPuntos("empate", 3);
             }
         });
     }
@@ -106,35 +124,26 @@ class TorneoFutbol extends Torneo {
 class TorneoBasket extends Torneo {
     calcularPuntos() {
         this.partidos.forEach(partido => {
-            const equipo1 = partido.equipo1;
-            const equipo2 = partido.equipo2;
+            const { equipo1, equipo2, marcador1, marcador2 } = partido;
 
-            if (equipo1.canastasAFavor === undefined) equipo1.canastasAFavor = 0;
-            if (equipo1.canastasEnContra === undefined) equipo1.canastasEnContra = 0;
-            if (equipo2.canastasAFavor === undefined) equipo2.canastasAFavor = 0;
-            if (equipo2.canastasEnContra === undefined) equipo2.canastasEnContra = 0;
+            equipo1.canastasAFavor += marcador1;
+            equipo1.canastasEnContra += marcador2;
+            equipo2.canastasAFavor += marcador2;
+            equipo2.canastasEnContra += marcador1;
 
-            equipo1.canastasAFavor += partido.puntosEquipo1;
-            equipo1.canastasEnContra += partido.puntosEquipo2;
-            equipo2.canastasAFavor += partido.puntosEquipo2;
-            equipo2.canastasEnContra += partido.puntosEquipo1;
-
-            if (partido.puntosEquipo1 > partido.puntosEquipo2) {
-                equipo1.actualizarPuntos('victoria', 2);
-                equipo2.actualizarPuntos('derrota', 2);
-            } else if (partido.puntosEquipo2 > partido.puntosEquipo1) {
-                equipo2.actualizarPuntos('victoria', 2);
-                equipo1.actualizarPuntos('derrota', 2);
+            if (marcador1 > marcador2) {
+                equipo1.actualizarPuntos("victoria", 2);
+                equipo2.actualizarPuntos("derrota", 2);
             } else {
-                equipo1.actualizarPuntos('empate', 2);
-                equipo2.actualizarPuntos('empate', 2);
+                equipo2.actualizarPuntos("victoria", 2);
+                equipo1.actualizarPuntos("derrota", 2);
             }
         });
     }
 }
 
-
-const rl = readline.createInterface({
+// ================== CLI ==================
+const rl = createInterface({
     input: process.stdin,
     output: process.stdout
 });
@@ -177,15 +186,10 @@ async function ejecutarTorneo() {
     for (let i = 0; i < cantEquipos; i++) {
         let nombre;
         do { nombre = await preguntar(`Nombre del equipo ${i + 1}: `); } while (!nombre.trim());
-        const eq = new Equipo(nombre);
 
-        if (tipoTorneo === 'futbol') {
-            eq.golesAFavor = 0;
-            eq.golesEnContra = 0;
-        } else {
-            eq.canastasAFavor = 0;
-            eq.canastasEnContra = 0;
-        }
+        const eq = tipoTorneo === 'futbol'
+            ? new EquipoFutbol(nombre)
+            : new EquipoBasket(nombre);
 
         torneo.agregarEquipo(eq);
     }
@@ -205,7 +209,12 @@ async function ejecutarTorneo() {
                     console.log("En basket no puede haber empate. Ingrese los puntos nuevamente.");
                 }
             } while (tipoTorneo === 'basket' && puntos1 === puntos2);
-            torneo.agregarPartido(new Partido(equiposTorneo[i], equiposTorneo[j], puntos1, puntos2));
+
+            const partido = tipoTorneo === 'futbol'
+                ? new PartidoFutbol(equiposTorneo[i], equiposTorneo[j], puntos1, puntos2)
+                : new PartidoBasket(equiposTorneo[i], equiposTorneo[j], puntos1, puntos2);
+
+            torneo.agregarPartido(partido);
         }
     }
 

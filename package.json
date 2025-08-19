@@ -1,0 +1,21 @@
+{
+  "name": "poo-torneo-tlpiv",
+  "type":"module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "torneo.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlosNahuelSanchez/POO_TLPIV_Torneo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/carlosNahuelSanchez/POO_TLPIV_Torneo/issues"
+  },
+  "homepage": "https://github.com/carlosNahuelSanchez/POO_TLPIV_Torneo#readme"
+}
